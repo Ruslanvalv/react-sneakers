@@ -1,15 +1,19 @@
 import React from 'react';
-import Info from './info';
-import AppContext from '../context';
+import Info from '../info';
+
 import axios from 'axios';
+import { useCart } from '../../hooks/useCart';
+
+import styles from './Drawer.module.scss';
 const delay = (ms) => {
   new Promise((resolve) => setTimeout(resolve, ms));
 };
-function Drawer({ onClose, onRemove, items = [] }) {
-  const { cartItems, setCartItems } = React.useContext(AppContext);
+function Drawer({ onClose, onRemove, items = [], opened }) {
+  const { cartItems, setCartItems, totalprice } = useCart();
   const [orderId, setorderId] = React.useState(null);
   const [isOrderComplete, setisOrderComplete] = React.useState(false);
   const [isLoading, setisLoading] = React.useState(false);
+
   const onClickOrder = async () => {
     try {
       setisLoading(true);
@@ -23,7 +27,7 @@ function Drawer({ onClose, onRemove, items = [] }) {
       for (let i = 0; i < cartItems.length; i++) {
         const item = cartItems[i];
         await axios.delete('https://6194fe6d74c1bd00176c6ab0.mockapi.io/cart/' + item.id);
-        await delay(1000);
+        delay(1000);
       }
     } catch (error) {
       alert('Не удалось создать заказ :(');
@@ -31,8 +35,8 @@ function Drawer({ onClose, onRemove, items = [] }) {
     setisLoading(false);
   };
   return (
-    <div className="overlay">
-      <div className="drawer d-flex flex-column">
+    <div className={`${styles.overlay} ${opened ? styles.overlayVisible : ''}`}>
+      <div className={`${styles.drawer} d-flex flex-column`}>
         <h2 className="mb-30 d-flex justify-between ">
           Корзина
           <img onClick={onClose} className="removeBtn cu-p" src="/img/btnremove.svg" alt="Remove" />
@@ -40,7 +44,7 @@ function Drawer({ onClose, onRemove, items = [] }) {
 
         {items.length > 0 ? (
           <div className="d-flex flex-column flex">
-            <div className="items  flex-1">
+            <div className="items  flex">
               {items.map((obj) => (
                 <div key={obj.id} className="cartItem d-flex align-center mb-20">
                   <div
@@ -66,12 +70,12 @@ function Drawer({ onClose, onRemove, items = [] }) {
                 <li>
                   <span>Итого: </span>
                   <div></div>
-                  <b>21 498 руб. </b>
+                  <b>{totalprice} руб. </b>
                 </li>
                 <li>
                   <span>Налог 5%: </span>
                   <div></div>
-                  <b>1074 руб. </b>
+                  <b>{Math.floor(totalprice * 0.05)} руб. </b>
                 </li>
               </ul>
               <button disabled={isLoading} onClick={onClickOrder} className="greenButton">

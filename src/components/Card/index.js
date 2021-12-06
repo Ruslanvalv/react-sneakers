@@ -4,6 +4,7 @@ import AppContext from '../../context';
 import styles from './Card.module.scss';
 function Card({
   id,
+
   title,
   price,
   imageUrl,
@@ -16,11 +17,12 @@ function Card({
   const { isItemAdded } = React.useContext(AppContext);
 
   const [isFavorite, setIsFavorite] = React.useState(favorited);
+  const obj = { id, parentId: id, title, price, imageUrl };
   const onClickPlus = () => {
-    onPlus({ id, title, price, imageUrl });
+    onPlus(obj);
   };
   const onClickFavorite = () => {
-    onFavorite({ id, title, imageUrl, price });
+    onFavorite(obj);
     setIsFavorite(!isFavorite);
   };
   return (
@@ -42,11 +44,13 @@ function Card({
       ) : (
         <>
           <div className={styles.favorite}>
-            <img
-              onClick={onClickFavorite}
-              src={isFavorite ? '/img/wish.svg' : '/img/unwish.svg'}
-              alt="unwish"
-            />
+            {onFavorite && (
+              <img
+                onClick={onClickFavorite}
+                src={isFavorite ? '/img/wish.svg' : '/img/unwish.svg'}
+                alt="unwish"
+              />
+            )}
           </div>
           <img width="100%" height={135} src={imageUrl} alt="sneakers" />
           <h5>{title}</h5>
@@ -55,12 +59,14 @@ function Card({
               <span>Цена:</span>
               <b>{price} руб.</b>
             </div>
-            <img
-              className={styles.plus}
-              onClick={onClickPlus}
-              src={isItemAdded(id) ? '/img/btnchoose.svg' : '/img/btnplus.svg'}
-              alt="plus"
-            />
+            {onPlus && (
+              <img
+                className={styles.plus}
+                onClick={onClickPlus}
+                src={isItemAdded(id) ? '/img/btnchoose.svg' : '/img/btnplus.svg'}
+                alt="plus"
+              />
+            )}
           </div>
         </>
       )}
